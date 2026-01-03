@@ -55,6 +55,7 @@ const commonSidebarConfig = {
   excludePattern: ['public', 'assets', 'docs'],
   manualSortFileNameByPriority: [ // 手动排序文件名优先级
     'guide',
+    'Appendix',
     '80-MachineLearning'
   ],
 }
