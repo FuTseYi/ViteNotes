@@ -82,25 +82,20 @@ const createSidebar = (root: string, prefix = '/') => {
 
 export default withMermaid(defineConfig({
 
-  // 路由重写：将 content 目录映射到根路径，en 目录保持 /en/ 前缀
+  // 路由重写：将 en 目录映射到根路径,作为默认语言内容
   rewrites: {
-    'en/index.md': 'index.md',            // 首页映射 (默认起始页面)
-    'en/:dir/:rest*': ':dir/:rest*',      // 英文内容（默认起始页面）
-    
-    //'zh/:dir/:rest*': 'zh/:dir/:rest*', // 中文版（未来启用时取消注释,就不需要首页映射了,因为前面有默认起始页了）
-    
+    'en/index.md': 'index.md',            // 英文首页映射到根路径
+    'en/:dir/:rest*': ':dir/:rest*',      // 英文内容映射到根路径
+    // zh 目录保持 /zh/ 前缀（无需路由重写，直接跳转到/zh/）
   },
   
   // 排除目录
   srcExclude: ['**/docs/**'],
   
-  //主题配置
+  //主题配置（全局配置，会被下方 locales 中的配置继承）
   themeConfig: {
     logo: SITE_CONFIG.logo,//左上角logo
     siteTitle: SITE_CONFIG.siteTitle,//左上角标题
-    search: { //搜索框配置
-      provider: 'local'
-    },
     socialLinks: [//外部链接图标配置    
       { icon: 'github', link: 'https://github.com/FuTseYi/ViteNotes' },
       { 
@@ -110,65 +105,104 @@ export default withMermaid(defineConfig({
         link: 'mailto:tseyi.wk@icloud.com',
       },
     ],
-
-    footer: { //底部版权信息配置
+    
+    //底部版权信息配置
+    footer: { 
       message: '© 2025–Present 謝懿Shine. All Rights Reserved.',
       copyright: 
                 'Powered by <a href="https://vuejs.org/" target="_blank">Vue</a> and ' +
-                
                 '<a href="https://github.com/FuTseYi" target="_blank">謝懿Shine</a>'
+    },
+
+    // 全局搜索配置&UI语言设置(英文en无需再次配置)
+    search: {
+      provider: 'local',
+      options: {
+        locales: {
+          zh: {
+            translations: {
+              button: {
+                buttonText: '搜索文档',
+                buttonAriaLabel: '搜索文档'
+              },
+              modal: {
+                noResultsText: '无法找到相关结果',
+                resetButtonTitle: '清除查询条件',
+                footer: {
+                  selectText: '选择',
+                  navigateText: '切换',
+                  closeText: '关闭'
+                }
+              }
+            }
+          }
+          // 添加其他语言示例：
+          // fr: { translations: { /* 法语翻译 */ } }
+        }
+      }
     }
   },
 
 
   // ========== 国际化页面配置 ==========
   locales: {
-    // ---------- 英文配置 ----------
+    // ---------- 英文配置 ----------拥有默认英文UI文本,无需再次配置
     root: {
-      label: 'English',//国际化下拉菜单显示的语言名称
-      lang: 'en',// 这里我喜欢使用en主题,但是也放中文内容(若是专业文档,最好是对应语言对应主题)
+      label: 'English',//国际化时下拉菜单显示的语言名称
+      lang: 'en',// 这里我用en,但共存中文内容(若是专业文档,最好是对应语言对应主题)
       title: SITE_CONFIG.title,
       description: SITE_CONFIG.description,
       themeConfig: {
         nav: [
           { text: 'Home🏠️', link: '/' },
         ],
-        sidebar: createSidebar('docs/en'),
+        // 由于 rewrites 已将 en 映射到根路径，侧边栏也使用根路径
+        sidebar: createSidebar('docs/en', '/'),// '/'决定“链接挂到哪里”（这些文档对应的网站路径以哪个前缀开头）
       }
     },
     
     // ---------- 中文配置（未来启用时取消注释）----------
-    /*
-    zh: {
+    /*zh: {
       label: '中文',
       lang: 'zh-CN',
       title: SITE_CONFIG.title,
       description: SITE_CONFIG.description,
       themeConfig: {
         nav: [
-          { text: 'Home', link: '/zh/' },
+          { text: '主页', link: '/zh/' },
           { 
-            text: 'Basic', 
+            text: '课程内容', 
             items: [
-              { text: '0. Preface', link: '/zh/Basic/00-preface/' },
-              { text: '1. Awakening', link: '/zh/Basic/01-awakening/' },
-              { text: '2. Mindset', link: '/zh/Basic/02-mindset/' },
-              { text: '3. Technique', link: '/zh/Basic/03-technique/' },
-              { text: '4. Practice 0 to 1', link: '/zh/Basic/04-practice-0-to-1/' },
-              { text: '5. Advanced', link: '/zh/Basic/05-advanced/' },
-              { text: 'Appendix', link: '/zh/Basic/99-appendix/' },
-              { text: 'Epilogue', link: '/zh/Basic/100-epilogue/' },
-              { text: 'Next Part', link: '/zh/Basic/101-next-part/' },
+              { text: '第一章 Git简介', link: '/zh/lecture01/' },
+              { text: '第二章 Git基础命令', link: '/zh/lecture02/' },
+              { text: '第三章 Git分支管理', link: '/zh/lecture03/' },
+              { text: '第四章 Git工具', link: '/zh/lecture04/' },
+              { text: '第五章 Git内部原理', link: '/zh/lecture05/' },
+              { text: '第六章 GitFlow工作流实战', link: '/zh/lecture06/' },
+              { text: '第七章 Git提交规范', link: '/zh/lecture07/' },
+              { text: '第八章 Github/Gitee使用说明', link: '/zh/lecture08/' },
+              { text: '第九章 Git可视化工具下载', link: '/zh/lecture09/' },
+              { text: '第十章 Git团队协作以及合并时的diff工具', link: '/zh/lecture10/' }
             ]
           },
         ],
-        sidebar: {
-          '/zh/': createSidebar('docs/zh', '/zh/')
+        sidebar: createSidebar('docs/zh', '/zh/'),
+        
+        // 中文 UI 文本配置
+        outlineTitle: '页面导航',
+        lastUpdatedText: '最后更新于',
+        darkModeSwitchLabel: '主题',
+        sidebarMenuLabel: '菜单',
+        returnToTopLabel: '回到顶部',
+        langMenuLabel: '多语言',
+        
+        docFooter: {
+          prev: '上一页',
+          next: '下一页'
         }
-      }
-    }
-    */
-    
+       }
+     }*/
+
   },
 
 // ========== 四、默认设置 ==========
